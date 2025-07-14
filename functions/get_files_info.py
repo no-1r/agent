@@ -1,25 +1,44 @@
+# functions/get_files_info.py
+
 import os
+from google.generativeai import types
 
 def get_files_info(working_directory, directory=None):
-    abs_dir = os.path.abspath(os.path.join(working_directory, directory))
+    target = directory or "."
+    abs_dir = os.path.abspath(os.path.join(working_directory, target))
     abs_working = os.path.abspath(working_directory)
+
     if not abs_dir.startswith(abs_working):
-        return (f'Error: Cannot list "{directory}" as it is outside the permitted working directory')
-    elif not os.path.isdir(abs_dir):
-        return (f'Error: "{directory}" is not a directory')
-    
-    f = []
+        return f'Error: Cannot list "{target}" – outside the permitted working directory.'
+    if not os.path.isdir(abs_dir):
+        return f'Error: "{target}" is not a directory.'
+
+    entries = []
     try:
-        for file in os.listdir(abs_dir): 
-            full_path = os.path.join(abs_dir,file)
-            size = os.path.getsize(full_path)
-            name = os.path.basename(full_path)
-            dirb = os.path.isdir(full_path)
-            f.append(f'- {name}: file_size={size} bytes, is_dir={dirb}')
-        return "\n".join(f)
-
-    except Exception as e:
-        return f'Error: {e}'
+        for fname in os.listdir(abs_dir):
+            full = os.path.join(abs_dir, fname)
+            size = os.path.getsize(full)
+            is_dir = os.path.isdir(full)
+            entries.append(f'- {fname}: file_size={size} bytes, is_dir={is_dir}')
+        return "\n".join(entries) or "(no files)"
+    except Exception as exc:
+        return f'Error: {exc}'
 
 
-    
+from google.generativeai import types
+
+# 
+schema_get_files_info = types.FunctionDeclaration(
+    name="get_files_info",
+    description="List files in a directory (with file size and directory flag), constrained to the working directory.",
+    parameters={
+        "type": "object",
+        "properties": {
+            "directory": {
+                "type": "string",
+                "description": "Relative path from the working directory. Defaults to the working directory if omitted.",
+            }
+        },
+        "required": []
+    }
+)

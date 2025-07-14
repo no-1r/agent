@@ -6,7 +6,7 @@ def run_python_file(working_directory, file_path):
     abs_file_path = os.path.abspath(os.path.join(working_directory, file_path))
     
     if not abs_file_path.startswith(abs_working_dir + os.sep) and abs_file_path != abs_working_dir:
-        return (f'Error: Cannot write to "{file_path}" as it is outside the permitted working directory')
+        return (f'Error: Cannot execute "{file_path}" as it is outside the permitted working directory')
     elif not os.path.isfile(abs_file_path):
         return (f'Error: File "{file_path}" not found.')
     elif not file_path.lower().endswith(".py"):
@@ -41,4 +41,19 @@ def run_python_file(working_directory, file_path):
         except Exception as e:
             return f"Error: executing Python file: {e}"
     
-            
+from google.generativeai import types
+
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Runs a Python script and returns the output or any errors.",
+    parameters={
+        "type": "object",
+        "properties": {
+            "path": {
+                "type": "string",
+                "description": "Relative path to the Python file to execute.",
+            }
+        },
+        "required": ["path"]
+    }
+)

@@ -20,3 +20,23 @@ def write_file(working_directory, file_path, content):
 
     except Exception as e:
         return f'Error: {e}'
+
+from google.generativeai import types
+schema_write_file = types.FunctionDeclaration(
+    name="write_file",
+    description="Writes content to a file. Overwrites if the file already exists.",
+    parameters={
+        "type": "object",
+        "properties": {
+            "path": {
+                "type": "string",
+                "description": "Relative path where the file will be written.",
+            },
+            "content": {
+                "type": "string",
+                "description": "The content to write to the file.",
+            }
+        },
+        "required": ["path", "content"]
+    }
+)
